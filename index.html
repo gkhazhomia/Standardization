@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Could your company run without you?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: questions and the send form on the left, a sticky result panel on the right; on phones: questions, result, send. Palette follows the sales deck: ink + signal red. */
+  --bg: #f4f5f6;
+  --surface: #ffffff;
+  --ink: #12161b;
+  --muted: #5d656d;
+  --line: #dfe2e5;
+  --accent: #c8452d;
+  --selected: #eceef0;
+  --good: #2f7d57;
+  --warn: #b7791f;
+  --bad: #c8452d;
+  --panel: #12161b;
+  --panel-ink: #f2f3f4;
+  --panel-muted: #9ba3ab;
+  --panel-line: #2a3138;
+  --font-display: "Archivo", "IBM Plex Sans", "Noto Sans Georgian", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Noto Sans Georgian", "Segoe UI", Calibri, Arial, sans-serif;
+  --radius: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1115; --surface: #171b21; --ink: #eef0f2; --muted: #9aa2aa; --line: #2a3139;
+    --accent: #e0583f; --selected: #252b33; --good: #4fb383; --warn: #e0a640; --bad: #e0583f;
+    --panel: #1d232a; --panel-ink: #f2f3f4; --panel-muted: #9ba3ab; --panel-line: #313942;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1115; --surface: #171b21; --ink: #eef0f2; --muted: #9aa2aa; --line: #2a3139;
+  --accent: #e0583f; --selected: #252b33; --good: #4fb383; --warn: #e0a640; --bad: #e0583f;
+  --panel: #1d232a; --panel-ink: #f2f3f4; --panel-muted: #9ba3ab; --panel-line: #313942;
+  color-scheme: dark;
+}
+:root[lang="ka"] { --font-display: "Noto Sans Georgian", "IBM Plex Sans", Arial, sans-serif; --font-body: "Noto Sans Georgian", "IBM Plex Sans", Arial, sans-serif; }
+:root[lang="ka"] .eyebrow, :root[lang="ka"] .q-area, :root[lang="ka"] .pill, :root[lang="ka"] .panel h2, :root[lang="ka"] .next h3 { text-transform: none; letter-spacing: .02em; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 48px; }
+header { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+.eyebrow { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.eyebrow::before { content: ""; width: 8px; height: 8px; background: var(--accent); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4.4vw, 46px); line-height: 1.1; margin: 8px 0 8px; text-wrap: balance; max-width: 22ch; }
+:root[lang="ka"] h1, :root[lang="ru"] h1 { max-width: 28ch; }
+.lede { color: var(--muted); margin: 0; max-width: 62ch; font-size: 17px; }
+.top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 9px 14px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; padding: 12px 20px; font-size: 16px; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn[disabled] { opacity: .6; cursor: progress; }
+.lang { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.lang button { border: 0; background: transparent; padding: 9px 12px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--muted); }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+.howto { list-style: none; margin: 0 0 20px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; counter-reset: step; }
+@media (max-width: 700px) { .howto { grid-template-columns: 1fr; } }
+.howto li { counter-increment: step; display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: center; font-size: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.howto li::before { content: counter(step); width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+.howto li:last-child::before { background: var(--accent); color: #fff; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; grid-template-areas: "q r" "s r"; gap: 24px; align-items: start; }
+.area-q { grid-area: q; } .area-r { grid-area: r; } .area-s { grid-area: s; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; grid-template-areas: "q" "r" "s"; } }
+
+.questions { display: grid; gap: 14px; }
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+.q-head { display: flex; gap: 14px; align-items: flex-start; }
+.q-num { font-family: var(--font-display); font-weight: 800; font-size: 15px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); border: 1px solid var(--line); flex: none; }
+.q.answered .q-num { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.q-area { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.q-text { font-family: var(--font-display); font-weight: 700; font-size: 18px; line-height: 1.35; margin: 2px 0 0; text-wrap: balance; }
+.opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+@media (max-width: 600px) { .opts { grid-template-columns: 1fr; } }
+.opt { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 12px 12px 12px 40px; cursor: pointer; min-height: 56px; position: relative; font-size: 14px; line-height: 1.35; display: flex; align-items: center; }
+.opt::before { content: ""; position: absolute; left: 14px; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); }
+.opt:hover { border-color: var(--muted); }
+.opt[aria-pressed="true"] { border-color: var(--ink); background: var(--selected); font-weight: 600; }
+.opt[aria-pressed="true"]::before { border-color: var(--ink); background: var(--ink); box-shadow: inset 0 0 0 3px var(--surface); }
+
+.panel { position: sticky; top: 16px; background: var(--panel); color: var(--panel-ink); border-radius: var(--radius); padding: 22px; display: grid; gap: 18px; }
+.panel h2 { font-family: var(--font-display); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--panel-muted); margin: 0; font-weight: 700; }
+.score-row { display: flex; align-items: baseline; gap: 10px; }
+.score { font-family: var(--font-display); font-weight: 800; font-size: 72px; line-height: .9; font-variant-numeric: tabular-nums; }
+.score-of { color: var(--panel-muted); font-size: 18px; }
+.progress { font-size: 13px; color: var(--panel-muted); }
+.scale { position: relative; height: 10px; display: grid; grid-template-columns: 4fr 3fr 4fr; gap: 3px; }
+.scale span { border-radius: 3px; opacity: .35; }
+.scale span:nth-child(1) { background: var(--good); }
+.scale span:nth-child(2) { background: var(--warn); }
+.scale span:nth-child(3) { background: var(--bad); }
+.scale span.on { opacity: 1; }
+.marker { position: absolute; top: -5px; width: 4px; height: 20px; background: var(--panel-ink); border-radius: 2px; transition: left .3s ease; }
+.pill { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+.pill.good { background: var(--good); color: #fff; }
+.pill.warn { background: var(--warn); color: #1a1205; }
+.pill.bad { background: var(--bad); color: #fff; }
+.pill.none { background: var(--panel-line); color: var(--panel-muted); }
+.verdict { font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.3; margin: 10px 0 6px; text-wrap: balance; }
+.reco { color: var(--panel-muted); margin: 0; font-size: 15px; }
+.next { border-top: 1px solid var(--panel-line); padding-top: 16px; }
+.next h3 { margin: 0 0 6px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.next p { margin: 0; font-size: 15px; }
+.next[hidden], .focus[hidden] { display: none; }
+.risks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.risks li { display: grid; grid-template-columns: 10px 1fr; gap: 10px; font-size: 14px; align-items: start; }
+.dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; }
+.dot.v2 { background: var(--bad); } .dot.v1 { background: var(--warn); }
+.risks .empty { color: var(--panel-muted); grid-column: 1 / -1; }
+.focus label { font-size: 14px; color: var(--panel-ink); font-weight: 600; display: block; margin-bottom: 6px; }
+.focus select { width: 100%; background: var(--panel); color: var(--panel-ink); border: 1px solid var(--panel-line); border-radius: 8px; padding: 9px 10px; }
+.to-send { background: none; border: 0; padding: 16px 0 0; font-family: inherit; border-top: 1px solid var(--panel-line); text-align: left; cursor: pointer; width: 100%; font-size: 15px; color: var(--panel-ink); font-weight: 600; text-decoration: none; border-top: 1px solid var(--panel-line); padding-top: 16px; display: flex; justify-content: space-between; gap: 10px; }
+.to-send span:last-child { color: var(--accent); }
+.to-send:hover span:first-child { text-decoration: underline; }
+
+.send { background: var(--surface); border: 2px solid var(--accent); border-radius: var(--radius); padding: 24px; display: grid; gap: 16px; }
+.send h2 { font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1.2; margin: 0; text-wrap: balance; }
+.send-text { margin: 0; color: var(--muted); max-width: 62ch; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .fields { grid-template-columns: 1fr; } }
+.fields .wide { grid-column: 1 / -1; }
+label.field { display: grid; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 500; }
+.field input, .field textarea { border: 1px solid var(--line); border-radius: 8px; padding: 10px 11px; background: var(--bg); width: 100%; }
+.field textarea { min-height: 90px; resize: vertical; }
+.send-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.privacy { font-size: 13px; color: var(--muted); margin: 0; }
+.msg { font-size: 14px; margin: 0; padding: 12px 14px; border-radius: 8px; }
+.msg[hidden] { display: none; }
+.msg.error { background: var(--selected); border-left: 0; color: var(--ink); }
+.msg.ok { background: var(--good); color: #fff; font-weight: 600; }
+.fallback { display: grid; gap: 10px; background: var(--selected); border-radius: 8px; padding: 14px; font-size: 14px; }
+.fallback[hidden] { display: none; }
+.fallback-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.addr { font-weight: 600; user-select: all; }
+
+.foot { margin-top: 28px; color: var(--muted); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .marker { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow" id="t-eyebrow"></div>
+      <h1 id="t-title"></h1>
+      <p class="lede" id="t-lede"></p>
+    </div>
+    <div class="top-actions">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-en" title="English">EN</button>
+        <button type="button" id="lang-de" title="Deutsch">DE</button>
+        <button type="button" id="lang-ka" title="ქართული">KA</button>
+        <button type="button" id="lang-ru" title="Русский">RU</button>
+      </div>
+      <button type="button" class="btn" id="btn-restart"></button>
+    </div>
+  </header>
+
+  <ol class="howto" id="howto"></ol>
+
+  <div class="grid">
+    <main class="area-q">
+      <div class="questions" id="questions"></div>
+    </main>
+
+    <aside class="panel area-r" aria-live="polite">
+      <h2 id="t-result"></h2>
+      <div>
+        <div class="score-row"><span class="score" id="score">0</span><span class="score-of">/ 10</span></div>
+        <div class="progress" id="progress"></div>
+      </div>
+      <div class="scale" aria-hidden="true"><span id="b0"></span><span id="b1"></span><span id="b2"></span><div class="marker" id="marker"></div></div>
+      <div>
+        <span class="pill none" id="pill"></span>
+        <p class="verdict" id="verdict"></p>
+        <p class="reco" id="reco"></p>
+      </div>
+      <div class="next">
+        <h3 id="t-next"></h3>
+        <p id="next"></p>
+      </div>
+      <div>
+        <h2 id="t-risks" style="margin-bottom:10px"></h2>
+        <ul class="risks" id="risks"></ul>
+      </div>
+      <div class="focus" id="focus-box">
+        <label for="f-focus" id="t-focus"></label>
+        <select id="f-focus"></select>
+      </div>
+      <div class="next" id="pilot-box">
+        <h3 id="t-pilot"></h3>
+        <p id="pilot"></p>
+      </div>
+      <button type="button" class="to-send" id="to-send"><span id="t-tosend"></span><span aria-hidden="true">↓</span></button>
+    </aside>
+
+    <section class="send area-s" id="send-form" aria-labelledby="t-sendtitle">
+      <h2 id="t-sendtitle"></h2>
+      <p class="send-text" id="t-sendtext"></p>
+      <form id="form" novalidate>
+        <div class="fields">
+          <label class="field" for="f-name"><span id="t-name"></span><input id="f-name" name="name" type="text" autocomplete="name" required></label>
+          <label class="field" for="f-company"><span id="t-company"></span><input id="f-company" name="company" type="text" autocomplete="organization"></label>
+          <label class="field" for="f-email"><span id="t-email"></span><input id="f-email" name="email" type="email" autocomplete="email" required></label>
+          <label class="field" for="f-phone"><span id="t-phone"></span><input id="f-phone" name="phone" type="tel" autocomplete="tel"></label>
+          <label class="field wide" for="f-message"><span id="t-message"></span><textarea id="f-message" name="message"></textarea></label>
+        </div>
+        <div class="send-row" style="margin-top:16px">
+          <button type="submit" class="btn primary" id="btn-send"></button>
+          <p class="privacy" id="t-privacy"></p>
+        </div>
+      </form>
+      <p class="msg error" id="err" role="alert" hidden></p>
+      <p class="msg ok" id="ok" role="status" hidden></p>
+      <div class="fallback" id="fallback" hidden>
+        <span id="t-fallback"></span>
+        <div class="fallback-actions">
+          <a class="btn" id="mailto" href="#"><span id="t-openmail"></span></a>
+          <button type="button" class="btn" id="btn-copy"></button>
+          <span class="addr">gkhazhomia@gmail.com</span>
+          <span class="privacy" id="copy-status" role="status"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+  <p class="foot">George Khazhomia · gkhazhomia@gmail.com · +41 77 279 62 50</p>
+</div>
+
+<script>
+const OWNER_EMAIL = "gkhazhomia@gmail.com";
+// Direct sending works when this page is hosted on an ordinary website (FormSubmit relays the form to the address above).
+// Inside a claude.ai artifact outside requests are blocked, so the page falls back to the visitor's email app.
+const SEND_ENDPOINT = "https://formsubmit.co/ajax/" + OWNER_EMAIL;
+
+const I18N = {
+  en: {
+    eyebrow: "Free self-check",
+    title: "Could your company run without you?",
+    lede: "Five questions, about two minutes. Find out how much your company depends on you, and what that means for what it is worth.",
+    howto: ["Answer five questions.", "See your result and your biggest risks.", "Send it and get a free 15-minute consultation."],
+    restart: "Start over",
+    result: "Your result", next: "What to do next", risks: "Your biggest risks",
+    focus: "Which of these worries you most?", pilot: "Where to start", toSend: "Get a free 15-minute consultation",
+    answered: (n) => `${n} of 5 answered`, complete: "All 5 answered",
+    noRisks: "No high-risk areas yet.", focusAuto: "The area with the highest risk",
+    pending: { pill: "Not finished", verdict: "Answer all five questions", reco: "Your result appears once every question has an answer.", next: "Answer the questions first." },
+    bands: [
+      { pill: "Runs on systems", verdict: "Your company can run without you.", reco: "Your processes are written down and used. You and your key people can step away without the business stalling. That makes the company easier to grow, finance or hand over.", next: "Keep it that way: review your standards regularly so they stay current." },
+      { pill: "Depends on key people", verdict: "Your company works, but relies on a few people.", reco: "Some of your know-how is written down, much of it is not. One resignation or long absence would hurt, and a buyer would notice.", next: "Start with one process: the area that worries you most. Writing it down takes weeks, not months." },
+      { pill: "Runs on you", verdict: "Your company runs on you.", reco: "Most of the knowledge is in your head or with one or two people. That lowers what the company is worth and makes a handover hard.", next: "Start now with the area that worries you most, then write down the ten processes that run the company. It is the best preparation for growth, succession or a sale." }
+    ],
+    questions: [
+      { area: "You", text: "If you were away for three weeks with no phone, what would happen to the business?", opts: ["It would run normally", "It would slow down", "It would stop, or I couldn’t go"], risk: "The business depends on you being there", pilot: "A handover file: your decisions, approvals, key clients, suppliers and contracts, written down" },
+      { area: "Key people", text: "If your most important employee resigned tomorrow, could someone else do their job within a month?", opts: ["Yes, it’s written down", "Partly", "No, it’s all in their head"], risk: "Critical knowledge sits with one person", pilot: "Write down the key person’s role: tasks, contacts, recurring decisions and where things are" },
+      { area: "New staff", text: "When a new person joins, how do they learn the job?", opts: ["Written procedures and a checklist", "A mix of documents and shadowing", "By watching and asking colleagues"], risk: "New hires take months to become productive", pilot: "An onboarding guide and a first-30-days checklist for your most common role" },
+      { area: "Quality", text: "Do two employees doing the same task do it the same way, with the same result?", opts: ["Always", "Mostly", "It depends on who does it"], risk: "Quality depends on who is on shift", pilot: "A written standard for your main service or production process" },
+      { area: "Value", text: "If a buyer or successor asked today to see how your company works, what could you show them?", opts: ["Documented processes", "Some documents", "Nothing, I would have to explain it myself"], risk: "The company could not be handed over or sold today", pilot: "A map of the ten core processes, plus your handover file" }
+    ],
+    send: {
+      title: "Get a free 15-minute consultation",
+      text: "Send your result to George Khazhomia. He will contact you to book a free 15-minute call about where your company should start.",
+      name: "Your name", company: "Company", email: "Email", phone: "Phone (optional)", message: "Message (optional)",
+      messagePh: "For example: we are planning a handover in three years.",
+      privacy: "Your answers go only to George Khazhomia and are not shared with anyone else.",
+      button: "Send my result", sending: "Sending…",
+      needAnswers: "Please answer all five questions first.", needContact: "Please enter your name and a valid email address.",
+      sent: "Thank you. Your result has been sent. George Khazhomia will contact you to book your free consultation.",
+      fallback: "Your browser could not send the message directly. Open your email app to send it, or copy the message and email it to:",
+      openMail: "Open email app", copy: "Copy message", copied: "Message copied", copyFail: "Copy failed. Please select the text manually.",
+      subject: "Self-check result",
+      labels: { name: "Name", company: "Company", email: "Email", phone: "Phone", message: "Message", score: "Score", result: "Result", worry: "Main concern", start: "Where to start", answers: "Answers" }
+    }
+  },
+  de: {
+    eyebrow: "Kostenloser Selbsttest",
+    title: "Läuft Ihr Unternehmen auch ohne Sie?",
+    lede: "Fünf Fragen, etwa zwei Minuten. Sehen Sie, wie stark Ihr Unternehmen von Ihnen abhängt und was das für seinen Wert bedeutet.",
+    howto: ["Fünf Fragen beantworten.", "Ergebnis und grösste Risiken sehen.", "Ergebnis senden und eine kostenlose 15-Minuten-Beratung erhalten."],
+    restart: "Neu beginnen",
+    result: "Ihr Ergebnis", next: "Was Sie als Nächstes tun können", risks: "Ihre grössten Risiken",
+    focus: "Was davon beschäftigt Sie am meisten?", pilot: "Wo Sie anfangen sollten", toSend: "Kostenlose 15-Minuten-Beratung erhalten",
+    answered: (n) => `${n} von 5 beantwortet`, complete: "Alle 5 beantwortet",
+    noRisks: "Noch keine Bereiche mit hohem Risiko.", focusAuto: "Der Bereich mit dem höchsten Risiko",
+    pending: { pill: "Noch offen", verdict: "Beantworten Sie alle fünf Fragen", reco: "Ihr Ergebnis erscheint, sobald jede Frage beantwortet ist.", next: "Zuerst die Fragen beantworten." },
+    bands: [
+      { pill: "Läuft über Systeme", verdict: "Ihr Unternehmen läuft auch ohne Sie.", reco: "Ihre Abläufe sind dokumentiert und werden gelebt. Sie und Ihre Schlüsselpersonen können ausfallen, ohne dass das Geschäft stockt. Das erleichtert Wachstum, Finanzierung und Übergabe.", next: "Halten Sie es so: Überprüfen Sie Ihre Standards regelmässig, damit sie aktuell bleiben." },
+      { pill: "Abhängig von Schlüsselpersonen", verdict: "Ihr Unternehmen funktioniert, hängt aber an wenigen Personen.", reco: "Ein Teil Ihres Wissens ist dokumentiert, vieles nicht. Eine Kündigung oder längere Abwesenheit würde schmerzen, und ein Käufer würde es merken.", next: "Beginnen Sie mit einem Ablauf: dem Bereich, der Sie am meisten beschäftigt. Das dauert Wochen, nicht Monate." },
+      { pill: "Läuft über Sie", verdict: "Ihr Unternehmen läuft über Sie.", reco: "Das meiste Wissen steckt in Ihrem Kopf oder bei ein, zwei Personen. Das senkt den Wert des Unternehmens und erschwert eine Übergabe.", next: "Beginnen Sie jetzt mit dem Bereich, der Sie am meisten beschäftigt, und dokumentieren Sie danach die zehn Abläufe, die das Unternehmen tragen. Das ist die beste Vorbereitung auf Wachstum, Nachfolge oder Verkauf." }
+    ],
+    questions: [
+      { area: "Sie", text: "Wenn Sie drei Wochen ohne Telefon weg wären, was würde mit dem Geschäft passieren?", opts: ["Es würde normal weiterlaufen", "Es würde langsamer laufen", "Es würde stillstehen, oder ich könnte nicht weg"], risk: "Das Geschäft hängt von Ihrer Anwesenheit ab", pilot: "Ein Übergabedossier: Ihre Entscheidungen, Freigaben, wichtigen Kunden, Lieferanten und Verträge, schriftlich festgehalten" },
+      { area: "Schlüsselpersonen", text: "Wenn Ihr wichtigster Mitarbeiter morgen kündigen würde, könnte jemand anderes seine Arbeit innerhalb eines Monats übernehmen?", opts: ["Ja, es ist dokumentiert", "Teilweise", "Nein, alles ist in seinem Kopf"], risk: "Kritisches Wissen liegt bei einer einzigen Person", pilot: "Die Rolle der Schlüsselperson dokumentieren: Aufgaben, Kontakte, wiederkehrende Entscheidungen und Ablageorte" },
+      { area: "Neue Mitarbeitende", text: "Wie lernt eine neue Person ihre Arbeit?", opts: ["Mit schriftlichen Abläufen und einer Checkliste", "Mit Dokumenten und Mitlaufen", "Durch Zuschauen und Nachfragen"], risk: "Neue Mitarbeitende brauchen Monate, bis sie produktiv sind", pilot: "Ein Einarbeitungsleitfaden und eine Checkliste für die ersten 30 Tage der häufigsten Rolle" },
+      { area: "Qualität", text: "Erledigen zwei Mitarbeitende dieselbe Aufgabe auf dieselbe Weise, mit demselben Ergebnis?", opts: ["Immer", "Meistens", "Es hängt davon ab, wer es macht"], risk: "Die Qualität hängt davon ab, wer gerade arbeitet", pilot: "Ein schriftlicher Standard für Ihren wichtigsten Dienstleistungs- oder Produktionsablauf" },
+      { area: "Wert", text: "Wenn ein Käufer oder Nachfolger heute sehen möchte, wie Ihr Unternehmen funktioniert, was könnten Sie ihm zeigen?", opts: ["Dokumentierte Abläufe", "Einige Dokumente", "Nichts, ich müsste es selbst erklären"], risk: "Das Unternehmen könnte heute nicht übergeben oder verkauft werden", pilot: "Eine Übersicht der zehn Kernprozesse plus Ihr Übergabedossier" }
+    ],
+    send: {
+      title: "Kostenlose 15-Minuten-Beratung",
+      text: "Senden Sie Ihr Ergebnis an George Khazhomia. Er meldet sich bei Ihnen, um ein kostenloses 15-minütiges Gespräch darüber zu vereinbaren, wo Ihr Unternehmen am besten anfängt.",
+      name: "Ihr Name", company: "Unternehmen", email: "E-Mail", phone: "Telefon (optional)", message: "Nachricht (optional)",
+      messagePh: "Zum Beispiel: Wir planen die Übergabe in drei Jahren.",
+      privacy: "Ihre Antworten gehen nur an George Khazhomia und werden nicht weitergegeben.",
+      button: "Ergebnis senden", sending: "Wird gesendet…",
+      needAnswers: "Bitte beantworten Sie zuerst alle fünf Fragen.", needContact: "Bitte geben Sie Ihren Namen und eine gültige E-Mail-Adresse ein.",
+      sent: "Vielen Dank. Ihr Ergebnis wurde gesendet. George Khazhomia meldet sich bei Ihnen für die kostenlose Beratung.",
+      fallback: "Ihr Browser konnte die Nachricht nicht direkt senden. Öffnen Sie Ihr E-Mail-Programm, oder kopieren Sie die Nachricht und senden Sie sie an:",
+      openMail: "E-Mail-Programm öffnen", copy: "Nachricht kopieren", copied: "Nachricht kopiert", copyFail: "Kopieren fehlgeschlagen. Bitte Text manuell markieren.",
+      subject: "Ergebnis Selbsttest",
+      labels: { name: "Name", company: "Unternehmen", email: "E-Mail", phone: "Telefon", message: "Nachricht", score: "Punktzahl", result: "Ergebnis", worry: "Grösste Sorge", start: "Wo anfangen", answers: "Antworten" }
+    }
+  },
+  ka: {
+    eyebrow: "უფასო თვითშეფასება",
+    title: "იმუშავებს თუ არა თქვენი კომპანია თქვენ გარეშე?",
+    lede: "ხუთი კითხვა, დაახლოებით ორი წუთი. გაიგეთ, რამდენად არის კომპანია თქვენზე დამოკიდებული და რას ნიშნავს ეს მისი ღირებულებისთვის.",
+    howto: ["უპასუხეთ ხუთ კითხვას.", "ნახეთ შედეგი და მთავარი რისკები.", "გამოგზავნეთ შედეგი და მიიღეთ უფასო 15-წუთიანი კონსულტაცია."],
+    restart: "თავიდან დაწყება",
+    result: "თქვენი შედეგი", next: "რა გააკეთოთ შემდეგ", risks: "თქვენი მთავარი რისკები",
+    focus: "აქედან რა გაწუხებთ ყველაზე მეტად?", pilot: "საიდან დაიწყოთ", toSend: "მიიღეთ უფასო 15-წუთიანი კონსულტაცია",
+    answered: (n) => `პასუხი გაცემულია ${n} კითხვაზე 5-დან`, complete: "პასუხი გაცემულია ხუთივე კითხვაზე",
+    noRisks: "მაღალი რისკის სფეროები ჯერ არ არის.", focusAuto: "ყველაზე მაღალი რისკის სფერო",
+    pending: { pill: "დაუსრულებელი", verdict: "უპასუხეთ ხუთივე კითხვას", reco: "შედეგი გამოჩნდება, როცა ყველა კითხვას უპასუხებთ.", next: "ჯერ უპასუხეთ კითხვებს." },
+    bands: [
+      { pill: "მუშაობს სისტემებზე", verdict: "თქვენს კომპანიას შეუძლია თქვენ გარეშე მუშაობა.", reco: "თქვენი პროცესები ჩაწერილია და გამოიყენება. თქვენ და საკვანძო თანამშრომლებს შეგიძლიათ არ იყოთ ადგილზე ისე, რომ ბიზნესი არ შეფერხდეს. ეს აადვილებს ზრდას, დაფინანსებას და კომპანიის გადაცემას.", next: "შეინარჩუნეთ ეს დონე: რეგულარულად გადახედეთ სტანდარტებს, რომ აქტუალური დარჩეს." },
+      { pill: "დამოკიდებულია საკვანძო ადამიანებზე", verdict: "კომპანია მუშაობს, მაგრამ რამდენიმე ადამიანზეა დამოკიდებული.", reco: "თქვენი ცოდნის ნაწილი ჩაწერილია, ბევრი კი არა. ერთი ადამიანის წასვლა ან ხანგრძლივი არყოფნა ბიზნესს ზიანს მიაყენებს და ამას მყიდველიც შეამჩნევს.", next: "დაიწყეთ ერთი პროცესით, იმით, რაც ყველაზე მეტად გაწუხებთ. ამას კვირები სჭირდება და არა თვეები." },
+      { pill: "დამოკიდებულია თქვენზე", verdict: "თქვენი კომპანია თქვენზეა დამოკიდებული.", reco: "ცოდნის უმეტესობა თქვენს თავშია ან ერთ-ორ ადამიანთან. ეს ამცირებს კომპანიის ღირებულებას და ართულებს მის გადაცემას.", next: "დაიწყეთ ახლავე იმ სფეროთი, რომელიც ყველაზე მეტად გაწუხებთ, შემდეგ კი ჩაწერეთ ის ათი პროცესი, რომელზეც კომპანია დგას. ეს საუკეთესო მომზადებაა ზრდისთვის, გადაცემისთვის ან გაყიდვისთვის." }
+    ],
+    questions: [
+      { area: "თქვენ", text: "სამი კვირით ტელეფონის გარეშე რომ წახვიდეთ, რა მოუვა ბიზნესს?", opts: ["ჩვეულებრივ გააგრძელებს მუშაობას", "მუშაობა შენელდება", "ყველაფერი გაჩერდება, ან ვერ წავალ"], risk: "ბიზნესი დამოკიდებულია თქვენს ადგილზე ყოფნაზე", pilot: "საქმეთა გადაცემის პაკეტი: თქვენი გადაწყვეტილებები, დამტკიცებები, მთავარი კლიენტები, მომწოდებლები და ხელშეკრულებები, წერილობით" },
+      { area: "საკვანძო თანამშრომლები", text: "თქვენი ყველაზე მნიშვნელოვანი თანამშრომელი ხვალ რომ წავიდეს, შეძლებს თუ არა სხვა ვინმე მის სამუშაოს შესრულებას ერთი თვის განმავლობაში?", opts: ["დიახ, ყველაფერი ჩაწერილია", "ნაწილობრივ", "არა, ყველაფერი მის თავშია"], risk: "კრიტიკული ცოდნა ერთ ადამიანთანაა თავმოყრილი", pilot: "საკვანძო თანამშრომლის როლის აღწერა: ამოცანები, კონტაქტები, განმეორებადი გადაწყვეტილებები და რა სად ინახება" },
+      { area: "ახალი თანამშრომლები", text: "როგორ სწავლობს ახალი თანამშრომელი საკუთარ საქმეს?", opts: ["წერილობითი პროცედურებით და ჩეკლისტით", "დოკუმენტებით და გამოცდილ კოლეგასთან ერთად მუშაობით", "დაკვირვებით და კოლეგებისთვის კითხვების დასმით"], risk: "ახალ თანამშრომლებს თვეები სჭირდებათ სრულ პროდუქტიულობამდე", pilot: "ადაპტაციის სახელმძღვანელო და პირველი 30 დღის ჩეკლისტი ყველაზე გავრცელებული პოზიციისთვის" },
+      { area: "ხარისხი", text: "ერთსა და იმავე დავალებას ორი თანამშრომელი ერთნაირად და ერთნაირი შედეგით ასრულებს?", opts: ["ყოველთვის", "უმეტესად", "დამოკიდებულია იმაზე, ვინ ასრულებს"], risk: "ხარისხი დამოკიდებულია იმაზე, ვინ მუშაობს", pilot: "წერილობითი სტანდარტი ძირითადი მომსახურების ან წარმოების პროცესისთვის" },
+      { area: "ღირებულება", text: "მყიდველმა ან თქვენმა მემკვიდრემ დღეს რომ გთხოვოთ, აჩვენოთ, როგორ მუშაობს კომპანია, რისი ჩვენება შეგეძლებოდათ?", opts: ["დოკუმენტირებული პროცესების", "ზოგიერთი დოკუმენტის", "არაფრის, თავად მომიწევდა ახსნა"], risk: "კომპანიის გადაცემა ან გაყიდვა დღეს შეუძლებელი იქნებოდა", pilot: "ათი ძირითადი პროცესის რუკა და საქმეთა გადაცემის პაკეტი" }
+    ],
+    send: {
+      title: "უფასო 15-წუთიანი კონსულტაცია",
+      text: "გამოგზავნეთ თქვენი შედეგი და George Khazhomia დაგიკავშირდებათ უფასო 15-წუთიანი საუბრის დასანიშნად იმაზე, თუ საიდან ჯობია თქვენმა კომპანიამ დაიწყოს.",
+      name: "თქვენი სახელი", company: "კომპანია", email: "ელფოსტა", phone: "ტელეფონი (არასავალდებულო)", message: "შეტყობინება (არასავალდებულო)",
+      messagePh: "მაგალითად: ბიზნესის გადაცემას სამ წელიწადში ვგეგმავთ.",
+      privacy: "თქვენს პასუხებს მიიღებს მხოლოდ George Khazhomia და ისინი სხვას არ გადაეცემა.",
+      button: "შედეგის გაგზავნა", sending: "იგზავნება…",
+      needAnswers: "ჯერ უპასუხეთ ხუთივე კითხვას.", needContact: "მიუთითეთ სახელი და სწორი ელფოსტის მისამართი.",
+      sent: "გმადლობთ. თქვენი შედეგი გაიგზავნა. George Khazhomia დაგიკავშირდებათ უფასო კონსულტაციის დასანიშნად.",
+      fallback: "ბრაუზერმა შეტყობინების პირდაპირ გაგზავნა ვერ შეძლო. გახსენით ელფოსტის პროგრამა, ან დააკოპირეთ შეტყობინება და გაგზავნეთ მისამართზე:",
+      openMail: "ელფოსტის გახსნა", copy: "შეტყობინების კოპირება", copied: "შეტყობინება დაკოპირდა", copyFail: "კოპირება ვერ მოხერხდა. მონიშნეთ ტექსტი ხელით.",
+      subject: "თვითშეფასების შედეგი",
+      labels: { name: "სახელი", company: "კომპანია", email: "ელფოსტა", phone: "ტელეფონი", message: "შეტყობინება", score: "ქულა", result: "შედეგი", worry: "მთავარი საზრუნავი", start: "საიდან დაიწყოს", answers: "პასუხები" }
+    }
+  },
+  ru: {
+    eyebrow: "Бесплатный экспресс-тест",
+    title: "Сможет ли ваша компания работать без вас?",
+    lede: "Пять вопросов, около двух минут. Узнайте, насколько ваша компания зависит от вас и что это значит для её стоимости.",
+    howto: ["Ответьте на пять вопросов.", "Посмотрите результат и главные риски.", "Отправьте его и получите бесплатную 15-минутную консультацию."],
+    restart: "Начать заново",
+    result: "Ваш результат", next: "Что делать дальше", risks: "Ваши главные риски",
+    focus: "Что из этого беспокоит вас больше всего?", pilot: "С чего начать", toSend: "Получить бесплатную 15-минутную консультацию",
+    answered: (n) => `Отвечено: ${n} из 5`, complete: "Отвечено на все 5 вопросов",
+    noRisks: "Зон высокого риска пока нет.", focusAuto: "Зона с наибольшим риском",
+    pending: { pill: "Не завершено", verdict: "Ответьте на все пять вопросов", reco: "Результат появится, когда вы ответите на все вопросы.", next: "Сначала ответьте на вопросы." },
+    bands: [
+      { pill: "Работает на системах", verdict: "Ваша компания может работать без вас.", reco: "Ваши процессы описаны и применяются. Вы и ключевые сотрудники можете отсутствовать, и бизнес не остановится. Это облегчает рост, финансирование и передачу компании.", next: "Сохраняйте этот уровень: регулярно пересматривайте стандарты, чтобы они оставались актуальными." },
+      { pill: "Зависит от ключевых сотрудников", verdict: "Ваша компания работает, но держится на нескольких людях.", reco: "Часть ваших знаний описана, но многое нет. Уход или долгое отсутствие одного человека нанесёт ущерб, и покупатель это заметит.", next: "Начните с одного процесса, того, который беспокоит вас больше всего. Это займёт недели, а не месяцы." },
+      { pill: "Держится на вас", verdict: "Ваша компания держится на вас.", reco: "Большая часть знаний у вас в голове или у одного-двух сотрудников. Это снижает стоимость компании и затрудняет её передачу.", next: "Начните сейчас с области, которая беспокоит вас больше всего, а затем опишите десять процессов, на которых держится компания. Это лучшая подготовка к росту, передаче или продаже бизнеса." }
+    ],
+    questions: [
+      { area: "Вы", text: "Если бы вы уехали на три недели без телефона, что произошло бы с бизнесом?", opts: ["Всё работало бы как обычно", "Работа замедлилась бы", "Всё остановилось бы, или я не смог бы уехать"], risk: "Бизнес зависит от вашего присутствия", pilot: "Пакет передачи дел: ваши решения, согласования, ключевые клиенты, поставщики и договоры в письменном виде" },
+      { area: "Ключевые сотрудники", text: "Если ваш самый важный сотрудник завтра уволится, сможет ли кто-то другой выполнять его работу в течение месяца?", opts: ["Да, всё описано", "Частично", "Нет, всё у него в голове"], risk: "Критически важные знания сосредоточены у одного человека", pilot: "Описать роль ключевого сотрудника: задачи, контакты, регулярные решения и где что находится" },
+      { area: "Новые сотрудники", text: "Как новый сотрудник осваивает свою работу?", opts: ["По письменным инструкциям и чек-листу", "По документам и рядом с опытным коллегой", "Наблюдая и расспрашивая коллег"], risk: "Новым сотрудникам нужны месяцы, чтобы выйти на полную продуктивность", pilot: "Руководство по адаптации и чек-лист первых 30 дней для самой распространённой должности" },
+      { area: "Качество", text: "Выполняют ли два сотрудника одну и ту же задачу одинаково и с одинаковым результатом?", opts: ["Всегда", "Как правило", "Зависит от того, кто выполняет"], risk: "Качество зависит от того, кто сейчас на смене", pilot: "Письменный стандарт для основного процесса обслуживания или производства" },
+      { area: "Стоимость", text: "Если бы покупатель или преемник попросил сегодня показать, как работает ваша компания, что вы могли бы ему показать?", opts: ["Описанные процессы", "Некоторые документы", "Ничего, пришлось бы объяснять самому"], risk: "Сегодня компанию невозможно передать или продать", pilot: "Карта десяти ключевых процессов и пакет передачи дел" }
+    ],
+    send: {
+      title: "Бесплатная 15-минутная консультация",
+      text: "Отправьте свой результат, и George Khazhomia свяжется с вами, чтобы назначить бесплатный 15-минутный разговор о том, с чего лучше начать вашей компании.",
+      name: "Ваше имя", company: "Компания", email: "Эл. почта", phone: "Телефон (необязательно)", message: "Сообщение (необязательно)",
+      messagePh: "Например: планируем передать бизнес через три года.",
+      privacy: "Ваши ответы получит только George Khazhomia, они никому не передаются.",
+      button: "Отправить результат", sending: "Отправка…",
+      needAnswers: "Сначала ответьте на все пять вопросов.", needContact: "Укажите имя и действующий адрес эл. почты.",
+      sent: "Спасибо. Ваш результат отправлен. George Khazhomia свяжется с вами, чтобы назначить бесплатную консультацию.",
+      fallback: "Браузеру не удалось отправить сообщение напрямую. Откройте почтовую программу или скопируйте сообщение и отправьте его на адрес:",
+      openMail: "Открыть почту", copy: "Скопировать сообщение", copied: "Сообщение скопировано", copyFail: "Не удалось скопировать. Выделите текст вручную.",
+      subject: "Результат экспресс-теста",
+      labels: { name: "Имя", company: "Компания", email: "Эл. почта", phone: "Телефон", message: "Сообщение", score: "Баллы", result: "Результат", worry: "Главная забота", start: "С чего начать", answers: "Ответы" }
+    }
+  }
+};
+
+const LANGS = ["en", "de", "ka", "ru"];
+let lang = "en";
+let state = { answers: [null, null, null, null, null], focus: "auto" };
+
+const $ = (id) => document.getElementById(id);
+const T = () => I18N[lang];
+
+// Scoring stays internal: each answer is worth 0, 1 or 2 by its position. Bands: 0–3, 4–6, 7–10.
+function evaluate(answers) {
+  const answered = answers.filter((a) => a !== null).length;
+  const total = answers.reduce((s, a) => s + (a ?? 0), 0);
+  const band = answered < 5 ? null : total <= 3 ? 0 : total <= 6 ? 1 : 2;
+  return { answered, total, band };
+}
+
+function riskIndexes(answers) {
+  return answers.map((v, i) => ({ v, i }))
+    .filter((x) => x.v !== null && x.v > 0)
+    .sort((a, b) => b.v - a.v || a.i - b.i);
+}
+
+function focusIndex() {
+  if (state.focus !== "auto") return Number(state.focus);
+  const r = riskIndexes(state.answers);
+  return r.length ? r[0].i : null;
+}
+
+function renderQuestions() {
+  const box = $("questions");
+  box.innerHTML = "";
+  T().questions.forEach((q, i) => {
+    const el = document.createElement("section");
+    el.className = "q" + (state.answers[i] !== null ? " answered" : "");
+    el.setAttribute("aria-labelledby", `q${i}-text`);
+    el.innerHTML = `
+      <div class="q-head">
+        <span class="q-num">${i + 1}</span>
+        <div><div class="q-area">${q.area}</div><p class="q-text" id="q${i}-text">${q.text}</p></div>
+      </div>
+      <div class="opts" role="group" aria-labelledby="q${i}-text"></div>`;
+    const opts = el.querySelector(".opts");
+    q.opts.forEach((label, v) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt";
+      b.id = `q${i}-o${v}`;
+      b.setAttribute("aria-pressed", state.answers[i] === v ? "true" : "false");
+      b.textContent = label;
+      b.addEventListener("click", () => {
+        state.answers[i] = state.answers[i] === v ? null : v;
+        renderQuestions();
+        renderResult();
+      });
+      opts.appendChild(b);
+    });
+    box.appendChild(el);
+  });
+}
+
+function renderFocusOptions() {
+  const t = T();
+  $("f-focus").innerHTML = `<option value="auto">${t.focusAuto}</option>` +
+    t.questions.map((q, i) => `<option value="${i}">${i + 1}. ${q.area}</option>`).join("");
+  $("f-focus").value = state.focus;
+}
+
+function renderResult() {
+  const t = T();
+  const { answered, total, band } = evaluate(state.answers);
+  $("score").textContent = total;
+  $("progress").textContent = answered === 5 ? t.complete : t.answered(answered);
+  ["b0", "b1", "b2"].forEach((id, k) => $(id).classList.toggle("on", band === k));
+  $("marker").style.left = `calc(${(total / 10) * 100}% - 2px)`;
+
+  const view = band === null ? t.pending : t.bands[band];
+  $("pill").className = "pill " + (band === null ? "none" : ["good", "warn", "bad"][band]);
+  $("pill").textContent = view.pill;
+  $("verdict").textContent = view.verdict;
+  $("reco").textContent = view.reco;
+  $("next").textContent = view.next;
+
+  const risks = riskIndexes(state.answers);
+  $("risks").innerHTML = risks.length
+    ? risks.map((r) => `<li><span class="dot v${r.v}"></span><span><strong>${t.questions[r.i].area}.</strong> ${t.questions[r.i].risk}</span></li>`).join("")
+    : `<li><span class="empty">${t.noRisks}</span></li>`;
+
+  const fi = focusIndex();
+  const showPilot = band !== null && band > 0 && fi !== null;
+  $("focus-box").hidden = !(band !== null && band > 0);
+  $("pilot-box").hidden = !showPilot;
+  $("pilot").textContent = showPilot ? t.questions[fi].pilot : "";
+}
+
+function applyLang() {
+  const t = T(), s = t.send;
+  document.documentElement.lang = lang;
+  const text = {
+    "t-eyebrow": t.eyebrow, "t-title": t.title, "t-lede": t.lede, "btn-restart": t.restart,
+    "t-result": t.result, "t-next": t.next, "t-risks": t.risks, "t-focus": t.focus, "t-pilot": t.pilot, "t-tosend": t.toSend,
+    "t-sendtitle": s.title, "t-sendtext": s.text, "t-name": s.name, "t-company": s.company, "t-email": s.email,
+    "t-phone": s.phone, "t-message": s.message, "btn-send": s.button, "t-privacy": s.privacy,
+    "t-fallback": s.fallback, "t-openmail": s.openMail, "btn-copy": s.copy
+  };
+  Object.entries(text).forEach(([id, v]) => { $(id).textContent = v; });
+  $("f-message").placeholder = s.messagePh;
+  $("howto").innerHTML = t.howto.map((x) => `<li><span>${x}</span></li>`).join("");
+  document.title = t.title;
+  LANGS.forEach((l) => $(`lang-${l}`).setAttribute("aria-pressed", l === lang ? "true" : "false"));
+  ["err", "ok"].forEach((id) => { $(id).hidden = true; });
+  $("fallback").hidden = true;
+  renderQuestions();
+  renderFocusOptions();
+  renderResult();
+}
+
+function setLang(l) {
+  if (!LANGS.includes(l)) return;
+  lang = l;
+  if (location.hash !== `#${l}`) history.replaceState(null, "", `#${l}`);
+  applyLang();
+}
+
+function buildMessage() {
+  const t = T(), L = t.send.labels;
+  const { total, band } = evaluate(state.answers);
+  const fi = focusIndex();
+  const lines = [
+    `${L.name}: ${$("f-name").value.trim()}`,
+    `${L.company}: ${$("f-company").value.trim() || "-"}`,
+    `${L.email}: ${$("f-email").value.trim()}`,
+    `${L.phone}: ${$("f-phone").value.trim() || "-"}`,
+    "",
+    `${L.score}: ${total} / 10`,
+    `${L.result}: ${t.bands[band].pill}`,
+  ];
+  if (band > 0 && fi !== null) lines.push(`${L.worry}: ${t.questions[fi].area}`, `${L.start}: ${t.questions[fi].pilot}`);
+  lines.push("", `${L.answers}:`);
+  t.questions.forEach((q, i) => lines.push(`${i + 1}. ${q.text}\n   → ${q.opts[state.answers[i]]}`));
+  const msg = $("f-message").value.trim();
+  if (msg) lines.push("", `${L.message}:`, msg);
+  lines.push("", `Language: ${lang.toUpperCase()}`);
+  return lines.join("\n");
+}
+
+function showError(text) {
+  $("err").textContent = text;
+  $("err").hidden = false;
+  $("ok").hidden = true;
+}
+
+async function trySend(subject, body) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(SEND_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        _subject: subject, _template: "box", _captcha: "false",
+        _replyto: $("f-email").value.trim(),
+        name: $("f-name").value.trim(), email: $("f-email").value.trim(),
+        company: $("f-company").value.trim(), phone: $("f-phone").value.trim(),
+        result: body
+      }),
+      signal: ctrl.signal
+    });
+    if (!res.ok) return false;
+    const data = await res.json().catch(() => ({}));
+    return String(data.success) === "true";
+  } catch (e) {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const s = T().send;
+  $("fallback").hidden = true;
+  if (evaluate(state.answers).answered < 5) { showError(s.needAnswers); return; }
+  const name = $("f-name").value.trim();
+  const email = $("f-email").value.trim();
+  if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError(s.needContact); return; }
+  $("err").hidden = true;
+
+  const { total } = evaluate(state.answers);
+  const subject = `${s.subject}: ${$("f-company").value.trim() || name} (${total}/10)`;
+  const body = buildMessage();
+  const btn = $("btn-send");
+  btn.disabled = true;
+  btn.textContent = s.sending;
+  const sent = await trySend(subject, body);
+  btn.disabled = false;
+  btn.textContent = s.button;
+
+  if (sent) {
+    $("ok").textContent = s.sent;
+    $("ok").hidden = false;
+  } else {
+    $("mailto").href = `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    $("mailto").dataset.body = body;
+    $("copy-status").textContent = "";
+    $("fallback").hidden = false;
+  }
+});
+
+$("btn-copy").addEventListener("click", async () => {
+  const s = T().send;
+  try {
+    await navigator.clipboard.writeText($("mailto").dataset.body || buildMessage());
+    $("copy-status").textContent = s.copied;
+  } catch (err) {
+    $("copy-status").textContent = s.copyFail;
+  }
+});
+
+$("btn-restart").addEventListener("click", () => {
+  state = { answers: [null, null, null, null, null], focus: "auto" };
+  $("form").reset();
+  ["err", "ok"].forEach((id) => { $(id).hidden = true; });
+  $("fallback").hidden = true;
+  renderQuestions();
+  renderFocusOptions();
+  renderResult();
+  window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+});
+
+$("to-send").addEventListener("click", () => { $("send-form").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); $("f-name").focus({ preventScroll: true }); });
+LANGS.forEach((l) => $(`lang-${l}`).addEventListener("click", () => setLang(l)));
+window.addEventListener("hashchange", () => setLang(location.hash.slice(1)));
+$("f-focus").addEventListener("change", (e) => { state.focus = e.target.value; renderResult(); });
+
+const initial = location.hash.slice(1);
+lang = LANGS.includes(initial) ? initial : "en";
+applyLang();
+</script>
+</body>
+</html>
