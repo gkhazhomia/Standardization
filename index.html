@@ -213,7 +213,17 @@ label.field { display: grid; gap: 4px; font-size: 13px; color: var(--muted); fon
     <section class="send area-s" id="send-form" aria-labelledby="t-sendtitle">
       <h2 id="t-sendtitle"></h2>
       <p class="send-text" id="t-sendtext"></p>
-      <form id="form" novalidate>
+      <form id="form" action="https://formsubmit.co/gkhazhomia@gmail.com" method="POST" accept-charset="UTF-8" novalidate>
+        <input type="hidden" name="_subject" id="h-subject" value="">
+        <input type="hidden" name="_next" id="h-next" value="">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="box">
+        <input type="hidden" name="score" id="h-score" value="">
+        <input type="hidden" name="result" id="h-result" value="">
+        <input type="hidden" name="main_concern" id="h-concern" value="">
+        <input type="hidden" name="answers" id="h-answers" value="">
+        <input type="hidden" name="language" id="h-lang" value="">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
         <div class="fields">
           <label class="field" for="f-name"><span id="t-name"></span><input id="f-name" name="name" type="text" autocomplete="name" required></label>
           <label class="field" for="f-company"><span id="t-company"></span><input id="f-company" name="company" type="text" autocomplete="organization"></label>
@@ -228,15 +238,7 @@ label.field { display: grid; gap: 4px; font-size: 13px; color: var(--muted); fon
       </form>
       <p class="msg error" id="err" role="alert" hidden></p>
       <p class="msg ok" id="ok" role="status" hidden></p>
-      <div class="fallback" id="fallback" hidden>
-        <span id="t-fallback"></span>
-        <div class="fallback-actions">
-          <a class="btn" id="mailto" href="#"><span id="t-openmail"></span></a>
-          <button type="button" class="btn" id="btn-copy"></button>
-          <span class="addr">gkhazhomia@gmail.com</span>
-          <span class="privacy" id="copy-status" role="status"></span>
-        </div>
-      </div>
+      <p class="privacy">gkhazhomia@gmail.com · +41 77 279 62 50</p>
     </section>
   </div>
   <p class="foot">George Khazhomia · gkhazhomia@gmail.com · +41 77 279 62 50</p>
@@ -503,8 +505,7 @@ function applyLang() {
     "t-eyebrow": t.eyebrow, "t-title": t.title, "t-lede": t.lede, "btn-restart": t.restart,
     "t-result": t.result, "t-next": t.next, "t-risks": t.risks, "t-focus": t.focus, "t-pilot": t.pilot, "t-tosend": t.toSend,
     "t-sendtitle": s.title, "t-sendtext": s.text, "t-name": s.name, "t-company": s.company, "t-email": s.email,
-    "t-phone": s.phone, "t-message": s.message, "btn-send": s.button, "t-privacy": s.privacy,
-    "t-fallback": s.fallback, "t-openmail": s.openMail, "btn-copy": s.copy
+    "t-phone": s.phone, "t-message": s.message, "btn-send": s.button, "t-privacy": s.privacy
   };
   Object.entries(text).forEach(([id, v]) => { $(id).textContent = v; });
   $("f-message").placeholder = s.messagePh;
@@ -512,7 +513,6 @@ function applyLang() {
   document.title = t.title;
   LANGS.forEach((l) => $(`lang-${l}`).setAttribute("aria-pressed", l === lang ? "true" : "false"));
   ["err", "ok"].forEach((id) => { $(id).hidden = true; });
-  $("fallback").hidden = true;
   renderQuestions();
   renderFocusOptions();
   renderResult();
@@ -553,78 +553,37 @@ function showError(text) {
   $("ok").hidden = true;
 }
 
-async function trySend(subject, body) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 8000);
-  try {
-    const res = await fetch(SEND_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        _subject: subject, _template: "box", _captcha: "false",
-        _replyto: $("f-email").value.trim(),
-        name: $("f-name").value.trim(), email: $("f-email").value.trim(),
-        company: $("f-company").value.trim(), phone: $("f-phone").value.trim(),
-        result: body
-      }),
-      signal: ctrl.signal
-    });
-    if (!res.ok) return false;
-    const data = await res.json().catch(() => ({}));
-    return String(data.success) === "true";
-  } catch (e) {
-    return false;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-$("form").addEventListener("submit", async (e) => {
+$("form").addEventListener("submit", (e) => {
   e.preventDefault();
-  const s = T().send;
-  $("fallback").hidden = true;
+  const t = T(), s = t.send;
   if (evaluate(state.answers).answered < 5) { showError(s.needAnswers); return; }
   const name = $("f-name").value.trim();
   const email = $("f-email").value.trim();
   if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError(s.needContact); return; }
   $("err").hidden = true;
 
-  const { total } = evaluate(state.answers);
-  const subject = `${s.subject}: ${$("f-company").value.trim() || name} (${total}/10)`;
-  const body = buildMessage();
+  const { total, band } = evaluate(state.answers);
+  const fi = focusIndex();
+  $("h-subject").value = `${s.subject}: ${$("f-company").value.trim() || name} (${total}/10)`;
+  $("h-next").value = new URL(`thanks.html?lang=${lang}`, location.href).href;
+  $("h-score").value = `${total} / 10`;
+  $("h-result").value = t.bands[band].pill;
+  $("h-concern").value = band > 0 && fi !== null ? `${t.questions[fi].area}: ${t.questions[fi].pilot}` : "-";
+  $("h-answers").value = t.questions.map((q, i) => `${i + 1}. ${q.text} → ${q.opts[state.answers[i]]}`).join("\n");
+  $("h-lang").value = lang.toUpperCase();
+
   const btn = $("btn-send");
   btn.disabled = true;
   btn.textContent = s.sending;
-  const sent = await trySend(subject, body);
-  btn.disabled = false;
-  btn.textContent = s.button;
-
-  if (sent) {
-    $("ok").textContent = s.sent;
-    $("ok").hidden = false;
-  } else {
-    $("mailto").href = `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    $("mailto").dataset.body = body;
-    $("copy-status").textContent = "";
-    $("fallback").hidden = false;
-  }
+  HTMLFormElement.prototype.submit.call($("form"));
 });
 
-$("btn-copy").addEventListener("click", async () => {
-  const s = T().send;
-  try {
-    await navigator.clipboard.writeText($("mailto").dataset.body || buildMessage());
-    $("copy-status").textContent = s.copied;
-  } catch (err) {
-    $("copy-status").textContent = s.copyFail;
-  }
-});
+window.addEventListener("pageshow", () => { $("btn-send").disabled = false; $("btn-send").textContent = T().send.button; });
 
 $("btn-restart").addEventListener("click", () => {
   state = { answers: [null, null, null, null, null], focus: "auto" };
   $("form").reset();
   ["err", "ok"].forEach((id) => { $(id).hidden = true; });
-  $("fallback").hidden = true;
   renderQuestions();
   renderFocusOptions();
   renderResult();

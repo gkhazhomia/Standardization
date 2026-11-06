@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thank you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f5f6; --surface: #ffffff; --ink: #12161b; --muted: #5d656d; --line: #dfe2e5; --accent: #c8452d; --good: #2f7d57;
+  --font-display: "Archivo", "IBM Plex Sans", "Noto Sans Georgian", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Noto Sans Georgian", Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0e1115; --surface: #171b21; --ink: #eef0f2; --muted: #9aa2aa; --line: #2a3139; --accent: #e0583f; --good: #4fb383; color-scheme: dark; }
+}
+:root[lang="ka"] { --font-display: "Noto Sans Georgian", Arial, sans-serif; --font-body: "Noto Sans Georgian", Arial, sans-serif; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); line-height: 1.55; display: grid; place-items: center; padding: 24px 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 36px 32px; max-width: 560px; width: 100%; display: grid; gap: 16px; }
+.tick { width: 52px; height: 52px; border-radius: 50%; background: var(--good); color: #fff; display: grid; place-items: center; font-size: 28px; font-weight: 700; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+p { margin: 0; color: var(--muted); font-size: 17px; }
+.contact { font-size: 14px; border-top: 1px solid var(--line); padding-top: 16px; }
+a.back { color: var(--accent); font-weight: 600; text-decoration: none; font-size: 15px; }
+a.back:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="tick" aria-hidden="true">✓</div>
+  <h1 id="title">Thank you. Your result has been sent.</h1>
+  <p id="text">George Khazhomia will contact you to book your free 15-minute consultation about where your company should start.</p>
+  <p class="contact">George Khazhomia · gkhazhomia@gmail.com · +41 77 279 62 50</p>
+  <a class="back" id="back" href="./">← Back to the self-check</a>
+</main>
+<script>
+const T = {
+  en: { title: "Thank you. Your result has been sent.", text: "George Khazhomia will contact you to book your free 15-minute consultation about where your company should start.", back: "← Back to the self-check" },
+  de: { title: "Vielen Dank. Ihr Ergebnis wurde gesendet.", text: "George Khazhomia meldet sich bei Ihnen, um Ihre kostenlose 15-minütige Beratung zu vereinbaren, wo Ihr Unternehmen am besten anfängt.", back: "← Zurück zum Selbsttest" },
+  ka: { title: "გმადლობთ. თქვენი შედეგი გაიგზავნა.", text: "George Khazhomia დაგიკავშირდებათ უფასო 15-წუთიანი კონსულტაციის დასანიშნად იმაზე, თუ საიდან ჯობია თქვენმა კომპანიამ დაიწყოს.", back: "← თვითშეფასებაზე დაბრუნება" },
+  ru: { title: "Спасибо. Ваш результат отправлен.", text: "George Khazhomia свяжется с вами, чтобы назначить бесплатную 15-минутную консультацию о том, с чего лучше начать вашей компании.", back: "← Вернуться к тесту" }
+};
+const lang = new URLSearchParams(location.search).get("lang");
+const t = T[lang] || T.en;
+const l = T[lang] ? lang : "en";
+document.documentElement.lang = l;
+document.title = t.title;
+document.getElementById("title").textContent = t.title;
+document.getElementById("text").textContent = t.text;
+const back = document.getElementById("back");
+back.textContent = t.back;
+back.href = "./#" + l;
+</script>
+</body>
+</html>
